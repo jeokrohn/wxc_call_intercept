@@ -106,13 +106,14 @@ def main():
     """
     where the magic happens
     """
-    # read .env file with the settings for the integration to be used to obtain tokens
-    load_dotenv()
     parser = argparse.ArgumentParser()
     parser.add_argument('user_email', type=email_type, help='email address of user')
     parser.add_argument('on_off', choices=['on', 'off'], nargs='?', help='operation to apply')
     parser.add_argument('--token', type=str, required=False, help='admin access token to use')
     args = parser.parse_args()
+
+    # read .env file with the settings for the integration to be used to obtain tokens
+    load_dotenv()
 
     if args.token:
         tokens = args.token
@@ -123,8 +124,8 @@ def main():
         print('Failed to get tokens', file=sys.stderr)
         exit(1)
 
-    # set to DEBUG to see debug of REST requests
-    logging.basicConfig(level=logging.INFO)
+    # set level to DEBUG to see debug of REST requests
+    logging.basicConfig(level=(gt := getattr(sys, 'gettrace', None)) and gt() and logging.DEBUG or logging.INFO)
 
     with WebexSimpleApi(tokens=tokens) as api:
         # get user
