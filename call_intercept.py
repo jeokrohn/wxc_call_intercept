@@ -5,7 +5,15 @@ Script to read/update call intercept settings of a calling user.
 The script uses the access token passed via the CLI, reads one from the WEBEX_ACCESS_TOKEN environment variable or
 obtains tokens via an OAuth flow.
 
-usage: call_intercept.py [-h] [--token TOKEN] user_email [{on,off}]
+    usage: call_intercept.py [-h] [--token TOKEN] user_email [{on,off}]
+
+    positional arguments:
+      user_email     email address of user
+      {on,off}       operation to apply
+
+    options:
+      -h, --help     show this help message and exit
+      --token TOKEN  admin access token to use
 """
 import argparse
 import logging
