@@ -5,7 +5,7 @@ Script to read/update call intercept settings of a calling user.
 The script uses the access token passed via the CLI, reads one from the WEBEX_ACCESS_TOKEN environment variable or
 obtains tokens via an OAuth flow.
 
-    usage: call_intercept.py [-h] [--token TOKEN] user_email [{on,off}]
+    usage: call_intercept.py [-h] [--token TOKEN] [-d] user_email [{on,off}]
 
     positional arguments:
       user_email     email address of user
@@ -14,6 +14,7 @@ obtains tokens via an OAuth flow.
     options:
       -h, --help     show this help message and exit
       --token TOKEN  admin access token to use
+      -d, --debug    show detailed REST trace
 """
 import argparse
 import logging
@@ -110,6 +111,7 @@ def main():
     parser.add_argument('user_email', type=email_type, help='email address of user')
     parser.add_argument('on_off', choices=['on', 'off'], nargs='?', help='operation to apply')
     parser.add_argument('--token', type=str, required=False, help='admin access token to use')
+    parser.add_argument('-d', '--debug', action='store_true', help='show detailed REST trace')
     args = parser.parse_args()
 
     # read .env file with the settings for the integration to be used to obtain tokens
@@ -124,8 +126,11 @@ def main():
         print('Failed to get tokens', file=sys.stderr)
         exit(1)
 
-    # set level to DEBUG to see debug of REST requests
-    logging.basicConfig(level=(gt := getattr(sys, 'gettrace', None)) and gt() and logging.DEBUG or logging.INFO)
+    # set level to DEBUG to see debug of REST requests if requested on the command line or executed in a debugger
+    if args.debug or ((gt := getattr(sys, 'gettrace', None)) and gt()):
+        logging.basicConfig(level=logging.DEBUG)
+    else:
+        logging.basicConfig(level=logging.INFO)
 
     with WebexSimpleApi(tokens=tokens) as api:
         # get user
